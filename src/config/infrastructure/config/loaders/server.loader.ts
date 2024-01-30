@@ -1,4 +1,4 @@
-import { HttpServerConfiguration } from '@/core/infrastructure/types';
+import { HttpServerConfiguration } from '@/core/types';
 import { registerAs } from '@nestjs/config';
 
 export const serverConfigLoader = registerAs(

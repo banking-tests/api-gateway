@@ -25,7 +25,7 @@ export class HealthController {
     description: 'Too many requests in a short time',
   })
   @Get('/')
-  public health(): void {
-    return this.healthService.health();
+  public health() {
+    return this.healthService.healthCheck();
   }
 }

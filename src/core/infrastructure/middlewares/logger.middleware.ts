@@ -1,4 +1,4 @@
-import { Request } from '@/core/infrastructure/types/http/request.type';
+import { Request } from '@/core/types/http/request.type';
 import { Inject, Injectable, Logger, NestMiddleware } from '@nestjs/common';
 import { NextFunction, Response } from 'express';
 
@@ -14,9 +14,7 @@ export class LoggerMiddleware implements NestMiddleware {
       return next();
     }
 
-    const requestId = Math.random().toString(36).substring(2, 15);
-    req.requestId = requestId;
-    const { method, path, query, cookies, body } = req;
+    const { method, path, query, cookies, body, requestId } = req;
     const start = Date.now();
     const oldWrite = res.write;
     const oldEnd = res.end;

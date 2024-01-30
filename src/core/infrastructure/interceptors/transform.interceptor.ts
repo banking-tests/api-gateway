@@ -37,7 +37,7 @@ export class TransformInterceptor<T> implements NestInterceptor<T, Response<T>> 
 
         return {
           requestId,
-          data,
+          data: data?.data ?? data,
           statusCode: context.switchToHttp().getResponse().statusCode,
           type: type(data),
         };
