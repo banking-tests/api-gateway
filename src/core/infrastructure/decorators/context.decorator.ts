@@ -1,4 +1,4 @@
-import { Request } from '@/core/infrastructure/types/http/request.type';
+import { Request } from '@/core/types/http/request.type';
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
 export const Ctx = createParamDecorator((_data: null, ctx: ExecutionContext) => {

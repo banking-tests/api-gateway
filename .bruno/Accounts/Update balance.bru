@@ -1,0 +1,17 @@
+meta {
+  name: Update balance
+  type: http
+  seq: 3
+}
+
+patch {
+  url: {{HOST}}/v1/accounts/cc6577c1-ca83-4745-b664-48fecce64755/balance
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "balance": 1200
+  }
+}
