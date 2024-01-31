@@ -13,8 +13,10 @@ import { TerminusModule } from '@nestjs/terminus';
     TerminusModule,
     HttpModule,
     ConfigModule.forFeature(() => ({
-      accounts: accountsLoader(),
-      transactions: transactionsLoader(),
+      microservices: {
+        accounts: accountsLoader(),
+        transactions: transactionsLoader(),
+      },
     })),
   ],
   controllers: [HealthController],

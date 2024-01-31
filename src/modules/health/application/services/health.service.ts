@@ -1,5 +1,6 @@
-// eslint-disable-next-line hexagonal-architecture/enforce
 import { HttpServerConfiguration } from '@/core/types/http/http-server.type';
+import { Pings } from '@/modules/health/application/types/pings.type';
+import { pingStatuses } from '@/modules/health/application/utils/ping-status.util';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { HealthCheckService, HttpHealthIndicator } from '@nestjs/terminus';
@@ -14,26 +15,35 @@ export class HealthService {
 
   public async healthCheck() {
     Logger.log('HealthCheck', HealthService.name);
-    const accounts = await this.pingAccounts();
+    const microservices = await this.pingAccounts();
     return {
       gateway: 'up',
-      accounts,
+      ...microservices,
     };
   }
 
-  public async pingAccounts(): Promise<string> {
+  public async pingAccounts(): Promise<Pings> {
     try {
-      const config = this.configService.get<HttpServerConfiguration>('accounts');
-      const isSsl = config.port === 443;
-      const url = isSsl ? `https://${config.host}` : `http://${config.host}:${config.port}`;
-      const { info } = await this.health.check([
-        () => this.http.pingCheck('accounts', `${url}/health`),
-      ]);
+      const microservices = this.configService.get<{ [key: string]: HttpServerConfiguration }>(
+        'microservices',
+      );
 
-      return info.accounts.status;
+      const healthIndicators = Object.keys(microservices).map((key) => {
+        const { host, port } = microservices[key];
+        const url = this.buildUrl(host, port);
+        return () => this.http.pingCheck(key, `${url}/health`);
+      });
+
+      const { info } = await this.health.check(healthIndicators);
+
+      return pingStatuses(info);
     } catch (error) {
-      Logger.error(`Error pinging accounts: ${error.message}`, HealthService.name);
-      return 'down';
+      return pingStatuses(error.response.details);
     }
+  }
+
+  private buildUrl(host: string, port: number): string {
+    const isSsl = port === 443;
+    return isSsl ? `https://${host}` : `http://${host}:${port}`;
   }
 }
