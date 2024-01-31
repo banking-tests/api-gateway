@@ -1,4 +1,4 @@
-import { Context } from '@/core/domain/interfaces/context.interface';
+import { Context } from '@/core/application/interfaces/context.interface';
 import { Ctx } from '@/core/infrastructure/decorators/context.decorator';
 import { QueryParser } from '@/core/infrastructure/decorators/query-parser.decorator';
 import { Json } from '@/core/types/general/json.type';
@@ -10,16 +10,7 @@ import { ListAccountsUseCase } from '@/modules/accounts/application/use-cases/li
 import { LockAccountUseCase } from '@/modules/accounts/application/use-cases/lock-account-use-case';
 import { UpdateAccountBalanceUseCase } from '@/modules/accounts/application/use-cases/update-account-balance.use-case';
 import { UpdateBalanceDto } from '@/modules/accounts/infrastructure/http/dtos/update-balance.dto';
-import {
-  BadRequestException,
-  Body,
-  Controller,
-  Get,
-  InternalServerErrorException,
-  NotFoundException,
-  Param,
-  Patch,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch } from '@nestjs/common';
 
 @Controller({ path: '/', version: '1' })
 export class AccountsController {
@@ -39,23 +30,12 @@ export class AccountsController {
     @QueryParser('filter') filter: Json,
     @QueryParser('options') options: QueryParsedOptions,
   ) {
-    return await this.listAccountsUseCase.execute(context, search, filter, options);
+    return this.listAccountsUseCase.execute(context, search, filter, options);
   }
 
   @Get('/:uuid')
-  public async getAccount(@Ctx() context: Context, @Param('uuid') uuid: string) {
-    try {
-      return await this.getAccountUseCase.execute(context, uuid);
-    } catch (error) {
-      switch (error?.response?.status || 500) {
-        case 404: {
-          throw new NotFoundException(error.response.data.message);
-        }
-        default: {
-          throw new InternalServerErrorException(error.response.data.message);
-        }
-      }
-    }
+  public getAccount(@Ctx() context: Context, @Param('uuid') uuid: string) {
+    return this.getAccountUseCase.execute(context, uuid);
   }
 
   @Patch('/:uuid/balance')
@@ -64,81 +44,21 @@ export class AccountsController {
     @Param('uuid') uuid: string,
     @Body() body: UpdateBalanceDto,
   ) {
-    try {
-      return await this.updateAccountBalanceUseCase.execute(context, uuid, body.balance);
-    } catch (error) {
-      switch (error?.response?.status || 500) {
-        case 400: {
-          throw new BadRequestException(error.response.data.message);
-        }
-        case 404: {
-          throw new NotFoundException(error.response.data.message);
-        }
-        default: {
-          throw new InternalServerErrorException(error.response.data.message);
-        }
-      }
-    }
+    return await this.updateAccountBalanceUseCase.execute(context, uuid, body.balance);
   }
 
   @Patch('/:uuid/lock')
-  public async lockAccount(@Ctx() context: Context, @Param('uuid') uuid: string) {
-    try {
-      return await this.lockAccountUseCase.execute(context, uuid);
-    } catch (error) {
-      switch (error?.response?.status || 500) {
-        case 400: {
-          throw new BadRequestException(error.response.data.message);
-        }
-        case 404: {
-          throw new NotFoundException(error.response.data.message);
-        }
-        default: {
-          throw new InternalServerErrorException(error.response.data.message);
-        }
-      }
-    }
+  public lockAccount(@Ctx() context: Context, @Param('uuid') uuid: string) {
+    return this.lockAccountUseCase.execute(context, uuid);
   }
 
   @Patch('/:uuid/activate')
-  public async activateAccount(@Ctx() context: Context, @Param('uuid') uuid: string) {
-    try {
-      return await this.activateAccountUseCase.execute(context, uuid);
-    } catch (error) {
-      switch (error?.response?.status || 500) {
-        case 400: {
-          throw new BadRequestException(error.response.data.message);
-        }
-        case 404: {
-          throw new NotFoundException(error.response.data.message);
-        }
-        default: {
-          throw new InternalServerErrorException(error.response.data.message);
-        }
-      }
-    }
+  public activateAccount(@Ctx() context: Context, @Param('uuid') uuid: string) {
+    return this.activateAccountUseCase.execute(context, uuid);
   }
 
   @Patch('/:uuid/close')
-  public async closeAccount(@Ctx() context: Context, @Param('uuid') uuid: string) {
-    try {
-      return await this.closeAccountUseCase.execute(context, uuid);
-    } catch (error) {
-      console.log(error);
-      switch (error?.response?.status || 500) {
-        case 400: {
-          throw new BadRequestException(error.response.data.message);
-        }
-        case 404: {
-          throw new NotFoundException(error.response.data.message);
-        }
-        case 409: {
-          throw new BadRequestException(error.response.data.message);
-        }
-        default: {
-          throw new InternalServerErrorException(error.response.data.message);
-        }
-      }
-    }
+  public closeAccount(@Ctx() context: Context, @Param('uuid') uuid: string) {
+    return this.closeAccountUseCase.execute(context, uuid);
   }
 }
