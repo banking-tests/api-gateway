@@ -38,6 +38,7 @@ export class LoggerMiddleware implements NestMiddleware {
       const duration = Date.now() - start;
       this.logger.log(
         JSON.stringify({
+          type: 'response',
           requestId,
           status: res.statusCode,
           statusMessage: res.statusMessage,
@@ -45,12 +46,13 @@ export class LoggerMiddleware implements NestMiddleware {
           contentLength: `${res.get('Content-Length')} B`,
           data,
         }).replace(/\\"/g, '"'),
-        'Response',
+        requestId,
       );
     });
 
     this.logger.log(
       JSON.stringify({
+        type: 'request',
         requestId,
         method,
         path,
@@ -58,7 +60,7 @@ export class LoggerMiddleware implements NestMiddleware {
         cookies,
         body,
       }).replace(/\\"/g, '"'),
-      'Request',
+      requestId,
     );
 
     next();

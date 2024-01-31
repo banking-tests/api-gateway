@@ -1,20 +1,31 @@
+import { ConnectionRefusedException } from '@/core/application/exceptions/connection-refused.exception';
 import { Request } from '@/core/types/http/request.type';
-import { ArgumentsHost, Catch, ExceptionFilter, HttpException, Logger } from '@nestjs/common';
+import {
+  ArgumentsHost,
+  Catch,
+  ExceptionFilter,
+  HttpException,
+  HttpStatus,
+  Logger,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
-import { StatusCodes, getReasonPhrase } from 'http-status-codes';
+import { getReasonPhrase } from 'http-status-codes';
 
-@Catch(HttpException)
-export class HttpExceptionFilter implements ExceptionFilter {
+@Catch()
+export class AllExceptionsFilter implements ExceptionFilter {
   constructor(private readonly configService: ConfigService) {}
 
-  catch(exception: HttpException, host: ArgumentsHost): Response {
-    const debug = this.configService.get<boolean>('environment.debug');
+  public catch(exception: any, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
-    const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
-    const status = exception?.getStatus() || 500;
-    const exceptionResponse = exception.getResponse() as any;
+    const debug = this.configService.get<boolean>('environment.debug');
+    const response = ctx.getResponse<Response>();
+    const status =
+      exception instanceof HttpException
+        ? exception.getStatus()
+        : HttpStatus.INTERNAL_SERVER_ERROR;
+    const exceptionResponse = exception.getResponse ? exception.getResponse() : exception;
     const timestamp = new Date().toISOString();
     const path = request.url;
     const data = exceptionResponse?.data;
@@ -23,52 +34,43 @@ export class HttpExceptionFilter implements ExceptionFilter {
       timestamp,
       path,
       data,
-      cause: exception?.cause,
     };
 
     if (debug) {
-      Logger.error(JSON.stringify(exceptionResponse), 'ExceptionFilter');
+      Logger.error(null, exception.message, request.requestId);
     }
 
-    let error = 'Oops! Something went wrong.';
-    let message = 'Oops! Something went wrong.';
-
-    const tcpStatus = StatusCodes.SERVICE_UNAVAILABLE;
-    const tcpMessage = getReasonPhrase(tcpStatus);
-
-    if (typeof exceptionResponse === 'string') {
-      if (exceptionResponse.includes('ECONNREFUSED')) {
-        const statusCode = StatusCodes.SERVICE_UNAVAILABLE;
-        error = message = tcpMessage;
-        return response.status(statusCode).send({
-          ...baseData,
-          statusCode,
-          error,
-          message,
-        });
-      } else {
-        error = message = exceptionResponse;
-        return response.status(status).send({
-          ...baseData,
-          statusCode: status,
-          error,
-          message,
-        });
-      }
+    if (exception?.response?.data) {
+      return response
+        .status(exception.response.data.statusCode || HttpStatus.INTERNAL_SERVER_ERROR)
+        .json(exception.response.data);
     }
 
-    if (typeof exceptionResponse === 'object') {
-      error = exceptionResponse.error;
-      message = exceptionResponse.message;
+    if (exception instanceof HttpException) {
+      return response.status(status).json({
+        ...baseData,
+        statusCode: status,
+        message: exceptionResponse.message,
+      });
     }
 
-    const responseBody = {
+    if (
+      exception.code === 'ECONNREFUSED' ||
+      (exception.message && exception.message.includes('ECONNREFUSED')) ||
+      exception.constructor.name === ConnectionRefusedException.name
+    ) {
+      const serviceUnavailable = HttpStatus.SERVICE_UNAVAILABLE;
+      return response.status(serviceUnavailable).json({
+        ...baseData,
+        statusCode: serviceUnavailable,
+        message: getReasonPhrase(serviceUnavailable),
+      });
+    }
+
+    return response.status(status).json({
       ...baseData,
       statusCode: status,
-      error,
-      message,
-    };
-
-    return response.status(status).json(responseBody);
+      message: getReasonPhrase(status),
+    });
   }
 }

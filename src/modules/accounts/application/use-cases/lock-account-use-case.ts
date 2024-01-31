@@ -1,6 +1,6 @@
 import { UseCase } from '@/core/application/case.decorator';
+import { Context } from '@/core/application/interfaces/context.interface';
 import { Executable } from '@/core/domain/executable.interface';
-import { Context } from '@/core/domain/interfaces/context.interface';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 
