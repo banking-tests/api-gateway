@@ -4,6 +4,7 @@ import { accountsLoader } from '@/modules/accounts/infrastructure/microservice/c
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { CqrsModule } from '@nestjs/cqrs';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     ConfigModule.forFeature(() => ({
       accounts: accountsLoader(),
     })),
+    CqrsModule,
   ],
   controllers: [AccountsController],
   providers: [...useCases],

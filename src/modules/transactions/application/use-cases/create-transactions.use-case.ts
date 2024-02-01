@@ -1,5 +1,5 @@
 import { UseCase } from '@/core/application/case.decorator';
-import { Context } from '@/core/application/interfaces/context.interface';
+import { Context } from '@/core/interfaces/context.interface';
 import { Executable } from '@/core/domain/executable.interface';
 import { TransactionPayload } from '@/modules/transactions/domain/types/transactions-payload.type';
 import { HttpService } from '@nestjs/axios';
