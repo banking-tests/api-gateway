@@ -14,8 +14,9 @@ export class GetTransactionsByAccountQueryHandler
     const request = await this.httpService.get(`/v1/transactions`, {
       params: {
         requestId: query.context.requestId,
-        account: query.accountId,
+        ...query.filter,
         ...query.options,
+        account: query.accountId,
       },
     });
 

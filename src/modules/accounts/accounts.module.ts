@@ -8,6 +8,7 @@ import { CqrsModule } from '@nestjs/cqrs';
 
 @Module({
   imports: [
+    CqrsModule,
     HttpModule.registerAsync({
       imports: [ConfigModule.forFeature(accountsLoader)],
       inject: [ConfigService],

@@ -11,6 +11,7 @@ import { LockAccountUseCase } from '@/modules/accounts/application/use-cases/loc
 import { UpdateAccountBalanceUseCase } from '@/modules/accounts/application/use-cases/update-account-balance.use-case';
 import { UpdateBalanceDto } from '@/modules/accounts/infrastructure/http/dtos/update-balance.dto';
 import { Body, Controller, Get, Param, Patch } from '@nestjs/common';
+import { GroupTransactionsByMonthsUseCase } from '@/modules/accounts/application/use-cases/group-transactions-by-months.use-case';
 import { ListAccountTransactionsUseCase } from '@/modules/accounts/application/use-cases/list-transactions-by-account';
 import { GroupTransactionsByCategoryUseCase } from '@/modules/accounts/application/use-cases/group-transactions-by-category.use-case';
 
@@ -25,6 +26,7 @@ export class AccountsController {
     private readonly closeAccountUseCase: CloseAccountUseCase,
     private readonly listAccountTransactionsUseCase: ListAccountTransactionsUseCase,
     private readonly groupTransactionsByCategoryUseCase: GroupTransactionsByCategoryUseCase,
+    private readonly groupTransactionsByMonthsUseCase: GroupTransactionsByMonthsUseCase,
   ) {}
 
   @Get('/')
@@ -70,18 +72,29 @@ export class AccountsController {
   public listTransactionsByAccount(
     @Ctx() context: Context,
     @Param('uuid') uuid: string,
+    @QueryParser('filter') filter: Json,
     @QueryParser('options') options: QueryParsedOptions,
   ) {
-    return this.listAccountTransactionsUseCase.execute(context, uuid, options);
+    return this.listAccountTransactionsUseCase.execute(context, uuid, filter, options);
   }
 
-  @Get('/:uuid/transactions/groups')
-  public listGroupedTransactionsByAccount(
+  @Get('/:uuid/transactions/groups/categories')
+  public listGroupedTransactionsByCategory(
     @Ctx() context: Context,
     @Param('uuid') uuid: string,
     @QueryParser('filter') filter: Json,
     @QueryParser('options') options: QueryParsedOptions,
   ) {
     return this.groupTransactionsByCategoryUseCase.execute(context, uuid, filter, options);
+  }
+
+  @Get('/:uuid/transactions/groups/months')
+  public listGroupedTransactionsByMonths(
+    @Ctx() context: Context,
+    @Param('uuid') uuid: string,
+    @QueryParser('filter') filter: Json,
+    @QueryParser('options') options: QueryParsedOptions,
+  ) {
+    return this.groupTransactionsByMonthsUseCase.execute(context, uuid, filter, options);
   }
 }
