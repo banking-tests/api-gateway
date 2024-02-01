@@ -16,6 +16,7 @@ export class GetTransactionsByAccountQueryHandler
         requestId: query.context.requestId,
         ...query.filter,
         ...query.options,
+        account: query.accountId,
       },
     });
 

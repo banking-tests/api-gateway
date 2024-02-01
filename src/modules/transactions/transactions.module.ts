@@ -5,9 +5,11 @@ import { transactionsLoader } from '@/modules/transactions/infrastructure/micros
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { CqrsModule } from '@nestjs/cqrs';
 
 @Module({
   imports: [
+    CqrsModule,
     HttpModule.registerAsync({
       imports: [ConfigModule.forFeature(transactionsLoader)],
       inject: [ConfigService],

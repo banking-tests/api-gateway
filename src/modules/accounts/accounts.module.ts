@@ -29,6 +29,7 @@ import { CqrsModule } from '@nestjs/cqrs';
     ConfigModule.forFeature(() => ({
       accounts: accountsLoader(),
     })),
+    CqrsModule,
   ],
   controllers: [AccountsController],
   providers: [...useCases],

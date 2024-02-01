@@ -11,8 +11,8 @@ import { LockAccountUseCase } from '@/modules/accounts/application/use-cases/loc
 import { UpdateAccountBalanceUseCase } from '@/modules/accounts/application/use-cases/update-account-balance.use-case';
 import { UpdateBalanceDto } from '@/modules/accounts/infrastructure/http/dtos/update-balance.dto';
 import { Body, Controller, Get, Param, Patch } from '@nestjs/common';
-import { ListAccountTransactionsUseCase } from '@/modules/accounts/application/use-cases/list-transactions-by-account.use-case';
 import { GroupTransactionsByMonthsUseCase } from '@/modules/accounts/application/use-cases/group-transactions-by-months.use-case';
+import { ListAccountTransactionsUseCase } from '@/modules/accounts/application/use-cases/list-transactions-by-account';
 import { GroupTransactionsByCategoryUseCase } from '@/modules/accounts/application/use-cases/group-transactions-by-category.use-case';
 
 @Controller({ path: '/', version: '1' })
