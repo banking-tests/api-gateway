@@ -1,12 +1,15 @@
+import { queryHandlers } from '@/modules/transactions/application/queries';
 import { useCases } from '@/modules/transactions/application/use-cases';
 import { TransactionsController } from '@/modules/transactions/infrastructure/http/controllers/transactions.controller';
 import { transactionsLoader } from '@/modules/transactions/infrastructure/microservice/config/transactions.loader';
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { CqrsModule } from '@nestjs/cqrs';
 
 @Module({
   imports: [
+    CqrsModule,
     HttpModule.registerAsync({
       imports: [ConfigModule.forFeature(transactionsLoader)],
       inject: [ConfigService],
@@ -29,6 +32,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     })),
   ],
   controllers: [TransactionsController],
-  providers: [...useCases],
+  providers: [...useCases, ...queryHandlers],
 })
 export class TransactionsModule {}

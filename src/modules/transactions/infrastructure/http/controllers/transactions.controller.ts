@@ -1,4 +1,4 @@
-import { Context } from '@/core/application/interfaces/context.interface';
+import { Context } from '@/core/interfaces/context.interface';
 import { Ctx } from '@/core/infrastructure/decorators/context.decorator';
 import { QueryParser } from '@/core/infrastructure/decorators/query-parser.decorator';
 import { Json } from '@/core/types/general/json.type';
